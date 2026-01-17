@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SubscriptionApp.Models;
+using SubscriptionApp.Repositories;
 using SubscriptionsApp.Data;
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -64,69 +65,11 @@ if (!db.Users.Any())
 
 Console.WriteLine("=== EF Core Queries ===\n");
 
-// 1
-var q1 = db.Users
-    .Where(u => u.FirstName.StartsWith("А"))
-    .ToList();
+var subscriptionRepo = new SubscriptionRepository(db); //Приклад використаня
 
-Console.WriteLine("1) Ім'я починається на 'А':");
-foreach (var u in q1)
-    Console.WriteLine($"- {u.Id}: {u.FirstName} {u.LastName}");
-Console.WriteLine();
+var expiredFree = await subscriptionRepo.GetExpiredFreeSubscriptionsAsync();
 
-// 2
-var q2 = db.Users
-    .Where(u => u.Subscriptions.Any())
-    .Include(u => u.Subscriptions)
-    .ToList();
-
-Console.WriteLine("2) Користувачі, у яких є підписки:");
-foreach (var u in q2)
-    Console.WriteLine($"- {u.FirstName} {u.LastName} (subscriptions: {u.Subscriptions.Count})");
-Console.WriteLine();
-
-// 3
-var q3 = db.Users
-    .Where(u => u.Subscriptions.Any(s => s.Type == SubscriptionType.Premium))
-    .Select(u => u.FirstName)
-    .Distinct()
-    .Take(5)
-    .ToList();
-
-Console.WriteLine("3) Перші 5 імен користувачів з Premium підпискою:");
-foreach (var name in q3)
-    Console.WriteLine($"- {name}");
-Console.WriteLine();
-
-// 4
-var q4 = db.Users
-    .Include(u => u.Subscriptions)
-    .OrderByDescending(u => u.Subscriptions.Count)
-    .FirstOrDefault();
-
-Console.WriteLine("4) Користувач з найбільшою кількістю підписок:");
-if (q4 is null)
+foreach (var s in expiredFree)
 {
-    Console.WriteLine("- Немає користувачів.");
+    Console.WriteLine($"{s.Title} | UserId: {s.UserId}");
 }
-else
-{
-    Console.WriteLine($"- {q4.FirstName} {q4.LastName} | Email: {q4.Email} | Count: {q4.Subscriptions.Count}");
-}
-Console.WriteLine();
-
-// 5
-var today = DateTime.Today;
-
-var q5 = db.Subscriptions
-    .Where(s => s.Type == SubscriptionType.Free && s.EndDate < today)
-    .Include(s => s.User)
-    .ToList();
-
-Console.WriteLine("5) Free підписки, які вже закінчились:");
-foreach (var s in q5)
-{
-    Console.WriteLine($"- {s.Title} ({s.StartDate:yyyy-MM-dd} - {s.EndDate:yyyy-MM-dd}) | User: {s.User.FirstName} {s.User.LastName}");
-}
-
-Console.WriteLine("\nDone.");

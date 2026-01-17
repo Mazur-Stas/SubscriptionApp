@@ -209,3 +209,4 @@ D:\ASP.NET\SubscriptionApp\obj\Debug\net10.0\refint\SubscriptionApp.dll
 D:\ASP.NET\SubscriptionApp\obj\Debug\net10.0\SubscriptionApp.pdb
 D:\ASP.NET\SubscriptionApp\obj\Debug\net10.0\SubscriptionApp.genruntimeconfig.cache
 D:\ASP.NET\SubscriptionApp\obj\Debug\net10.0\ref\SubscriptionApp.dll
+D:\ASP.NET\SubscriptionApp\obj\Debug\net10.0\SubscriptionApp.sourcelink.json
